@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python 转 APK 工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Python 转 APK 工具</h1>
+            <p>上传您的Python文件和资源文件，一键转换为Android APK</p>
+        </header>
+        
+        <main>
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="guiType">选择GUI框架:</label>
+                    <select id="guiType" required>
+                        <option value="">-- 请选择 --</option>
+                        <option value="kivy">Kivy</option>
+                        <option value="tkinter">Tkinter</option>
+                        <option value="pyside6">PySide6</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="pythonFile">Python主文件 (必选):</label>
+                    <input type="file" id="pythonFile" accept=".py" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="resourceFiles">资源文件 (可选，可多选):</label>
+                    <input type="file" id="resourceFiles" multiple>
+                </div>
+                
+                <div class="form-group">
+                    <label for="extraDeps">额外依赖 (每行一个):</label>
+                    <textarea id="extraDeps" rows="3" placeholder="例如: numpy==1.21.0\npillow"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="permissions">Android权限 (每行一个):</label>
+                    <textarea id="permissions" rows="3" placeholder="例如: android.permission.INTERNET\nandroid.permission.CAMERA"></textarea>
+                </div>
+                
+                <button type="submit" id="submitBtn">开始转换</button>
+            </form>
+            
+            <div id="statusArea" class="hidden">
+                <h2>构建状态</h2>
+                <div id="progressBar">
+                    <div id="progress"></div>
+                </div>
+                <p id="statusText">准备构建...</p>
+                <div id="downloadArea" class="hidden">
+                    <p class="warning">注意: APK文件将在1分钟后自动删除，请及时下载！</p>
+                    <a id="downloadBtn" class="download-btn" download>下载APK</a>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>© 2023 Python转APK工具 - 免费服务</p>
+        </footer>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+name: Build Tkinter APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_id:
+        description: 'Task ID'
+        required: true
+      python_file:
+        description: 'Main Python file'
+        required: true
+      resource_files:
+        description: 'Resource files (comma separated)'
+        required: false
+      extra_deps:
+        description: 'Extra dependencies (newline separated)'
+        required: false
+      permissions:
+        description: 'Android permissions (newline separated)'
+        required: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install python-for-android
+        
+    - name: Download task files
+      run: |
+        mkdir -p ./task_files
+        curl -s -o ./task_files/${{ inputs.python_file }} ${{ secrets.API_BASE_URL }}/task-files/${{ inputs.task_id }}/${{ inputs.python_file }}
+        
+        # Download resource files if any
+        if [ -n "${{ inputs.resource_files }}" ]; then
+          IFS=',' read -ra files <<< "${{ inputs.resource_files }}"
+          for file in "${files[@]}"; do
+            curl -s -o "./task_files/${file}" "${{ secrets.API_BASE_URL }}/task-files/${{ inputs.task_id }}/${file}"
+          done
+        fi
+        
+    - name: Build APK
+      run: |
+        p4a apk \
+          --private ./task_files \
+          --package=org.test.myapp \
+          --name "MyApp" \
+          --version 0.1 \
+          --requirements=python3,android,tkinter${{ inputs.extra_deps && ',' || '' }}${{ join(fromJSON(format('["{0}"]', replace(inputs.extra_deps, '\n', '","'))), ',') }} \
+          --permission ${{ join(fromJSON(format('["{0}"]', replace(inputs.permissions, '\n', '","'))), ',' }} \
+          --android-api 28 \
+          --ndk-version 19b \
+          --arch=armeabi-v7a \
+          --dist-name myapp
+        
+        cp ./dist/myapp/bin/*.apk ./app.apk
+        
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: tkinter-app
+        path: app.apk
+        
+    - name: Notify API
+      run: |
+        curl -X POST "${{ secrets.API_BASE_URL }}/build-completed" \
+          -H "Authorization: Bearer ${{ secrets.API_TOKEN }}" \
+          -F "task_id=${{ inputs.task_id }}" \
+          -F "success=true" \
+          -F "artifact_name=tkinter-app"

@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "public": false,
+  "builds": [
+    {
+      "src": "api/app.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "public/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/app.py"
+    }
+  ],
+  "env": {
+    "PYTHON_VERSION": "3.9",
+    "API_BASE_URL": "https://python-to-apk.vercel.app",
+    "API_TOKEN": "@api-token"
+  }
+}

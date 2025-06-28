@@ -24,6 +24,6 @@
   "env": {
     "PYTHON_VERSION": "3.9",
     "API_BASE_URL": "https://python-to-apk.vercel.app",
-    "API_TOKEN": "@API_TOKEN"
+    "API_TOKEN": "API_TOKEN"
   }
 }
